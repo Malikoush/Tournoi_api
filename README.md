@@ -1,3 +1,3 @@
 # DOCUMENTATION
 
-![](./docs/tournoi_mcd.dio.svg)
+![](./docs/tournoi_mcd.drawio.svg)
