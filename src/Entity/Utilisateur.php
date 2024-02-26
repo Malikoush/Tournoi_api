@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UtilisateurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,6 +11,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
+#[ApiResource]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -41,17 +43,19 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: "datetime_immutable", options:["default"=> "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $date_creation = null;
 
-    #[ORM\OneToMany(targetEntity: Tournoi::class, mappedBy: 'organisateur_id')]
-    private Collection $tournois;
+    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'utilisateur')]
+    private Collection $participations;
 
-    #[ORM\ManyToMany(targetEntity: Tournoi::class, inversedBy: 'utilisateurs')]
-    private Collection $tournoi_id;
+    #[ORM\OneToMany(targetEntity: Tournoi::class, mappedBy: 'organisateur')]
+    private Collection $tournois;
 
     public function __construct()
     {
+        $this->participations = new ArrayCollection();
         $this->tournois = new ArrayCollection();
-        $this->tournoi_id = new ArrayCollection();
     }
+
+   
 
     public function getId(): ?int
     {
@@ -172,6 +176,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * @return Collection<int, Participation>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
+    public function addParticipation(Participation $participation): static
+    {
+        if (!$this->participations->contains($participation)) {
+            $this->participations->add($participation);
+            $participation->setUtilisateurId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipation(Participation $participation): static
+    {
+        if ($this->participations->removeElement($participation)) {
+            // set the owning side to null (unless already changed)
+            if ($participation->getUtilisateurId() === $this) {
+                $participation->setUtilisateurId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @return Collection<int, Tournoi>
      */
     public function getTournois(): Collection
@@ -183,7 +217,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->tournois->contains($tournoi)) {
             $this->tournois->add($tournoi);
-            $tournoi->setOrganisateurId($this);
+            $tournoi->setOrganisateur($this);
         }
 
         return $this;
@@ -193,35 +227,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->tournois->removeElement($tournoi)) {
             // set the owning side to null (unless already changed)
-            if ($tournoi->getOrganisateurId() === $this) {
-                $tournoi->setOrganisateurId(null);
+            if ($tournoi->getOrganisateur() === $this) {
+                $tournoi->setOrganisateur(null);
             }
         }
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Tournoi>
-     */
-    public function getTournoiId(): Collection
-    {
-        return $this->tournoi_id;
-    }
-
-    public function addTournoiId(Tournoi $tournoiId): static
-    {
-        if (!$this->tournoi_id->contains($tournoiId)) {
-            $this->tournoi_id->add($tournoiId);
-        }
-
-        return $this;
-    }
-
-    public function removeTournoiId(Tournoi $tournoiId): static
-    {
-        $this->tournoi_id->removeElement($tournoiId);
-
-        return $this;
-    }
+  
 }

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\RencontreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,6 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RencontreRepository::class)]
+#[ApiResource]
 class Rencontre
 {
     #[ORM\Id]
@@ -27,21 +29,21 @@ class Rencontre
 
     #[ORM\ManyToOne(inversedBy: 'rencontres')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Poule $poule_id = null;
+    private ?Poule $poule = null;
 
     #[ORM\ManyToOne(inversedBy: 'rencontres')]
-    private ?Equipe $equipe1_id = null;
+    private ?Equipe $equipe1 = null;
 
     #[ORM\ManyToOne(inversedBy: 'rencontres')]
-    private ?Equipe $equipe2_id = null;
+    private ?Equipe $equipe2 = null;
 
     #[ORM\ManyToOne(inversedBy: 'rencontres')]
-    private ?Arbitre $arbitre_id = null;
+    private ?Arbitre $arbitre = null;
 
     #[ORM\ManyToOne(inversedBy: 'rencontres')]
-    private ?Terrain $terrain_id = null;
+    private ?Terrain $terrain = null;
 
-    #[ORM\OneToMany(targetEntity: Set::class, mappedBy: 'rencontre_id')]
+    #[ORM\OneToMany(targetEntity: Set::class, mappedBy: 'rencontre')]
     private Collection $sets;
 
     public function __construct()
@@ -92,60 +94,60 @@ class Rencontre
 
     public function getPouleId(): ?Poule
     {
-        return $this->poule_id;
+        return $this->poule;
     }
 
-    public function setPouleId(?Poule $poule_id): static
+    public function setPouleId(?Poule $poule): static
     {
-        $this->poule_id = $poule_id;
+        $this->poule = $poule;
 
         return $this;
     }
 
     public function getEquipe1Id(): ?Equipe
     {
-        return $this->equipe1_id;
+        return $this->equipe1;
     }
 
-    public function setEquipe1Id(?Equipe $equipe1_id): static
+    public function setEquipe1Id(?Equipe $equipe1): static
     {
-        $this->equipe1_id = $equipe1_id;
+        $this->equipe1 = $equipe1;
 
         return $this;
     }
 
     public function getEquipe2Id(): ?Equipe
     {
-        return $this->equipe2_id;
+        return $this->equipe2;
     }
 
-    public function setEquipe2Id(?Equipe $equipe2_id): static
+    public function setEquipe2Id(?Equipe $equipe2): static
     {
-        $this->equipe2_id = $equipe2_id;
+        $this->equipe2 = $equipe2;
 
         return $this;
     }
 
     public function getArbitreId(): ?Arbitre
     {
-        return $this->arbitre_id;
+        return $this->arbitre;
     }
 
-    public function setArbitreId(?Arbitre $arbitre_id): static
+    public function setArbitreId(?Arbitre $arbitre): static
     {
-        $this->arbitre_id = $arbitre_id;
+        $this->arbitre = $arbitre;
 
         return $this;
     }
 
     public function getTerrainId(): ?Terrain
     {
-        return $this->terrain_id;
+        return $this->terrain;
     }
 
-    public function setTerrainId(?Terrain $terrain_id): static
+    public function setTerrainId(?Terrain $terrain): static
     {
-        $this->terrain_id = $terrain_id;
+        $this->terrain = $terrain;
 
         return $this;
     }

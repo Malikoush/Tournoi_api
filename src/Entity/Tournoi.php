@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TournoiRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TournoiRepository::class)]
+#[ApiResource]
 class Tournoi
 {
     #[ORM\Id]
@@ -39,28 +41,32 @@ class Tournoi
     #[ORM\Column(type: "datetime_immutable", options:["default"=> "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $date_creation = null;
 
-    #[ORM\ManyToOne(inversedBy: 'tournois')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Utilisateur $organisateur_id = null;
+  
 
-    #[ORM\OneToMany(targetEntity: Phase::class, mappedBy: 'tournoi_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Phase::class, mappedBy: 'tournoi', orphanRemoval: true)]
     private Collection $phases;
 
-    #[ORM\OneToMany(targetEntity: Equipe::class, mappedBy: 'tournoi_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Equipe::class, mappedBy: 'tournoi', orphanRemoval: true)]
     private Collection $equipes;
 
-    #[ORM\ManyToMany(targetEntity: Utilisateur::class, mappedBy: 'tournoi_id')]
-    private Collection $utilisateurs;
+  
 
-    #[ORM\OneToMany(targetEntity: Terrain::class, mappedBy: 'tournoi_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Terrain::class, mappedBy: 'tournoi', orphanRemoval: true)]
     private Collection $terrains;
+
+    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'tournoi')]
+    private Collection $participations;
+
+    #[ORM\ManyToOne(inversedBy: 'tournois')]
+    private ?Utilisateur $organisateur = null;
 
     public function __construct()
     {
         $this->phases = new ArrayCollection();
         $this->equipes = new ArrayCollection();
-        $this->utilisateurs = new ArrayCollection();
+        
         $this->terrains = new ArrayCollection();
+        $this->participations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -164,17 +170,8 @@ class Tournoi
         return $this;
     }
 
-    public function getOrganisateurId(): ?Utilisateur
-    {
-        return $this->organisateur_id;
-    }
 
-    public function setOrganisateurId(?Utilisateur $organisateur_id): static
-    {
-        $this->organisateur_id = $organisateur_id;
 
-        return $this;
-    }
 
     /**
      * @return Collection<int, Phase>
@@ -236,32 +233,7 @@ class Tournoi
         return $this;
     }
 
-    /**
-     * @return Collection<int, Utilisateur>
-     */
-    public function getUtilisateurs(): Collection
-    {
-        return $this->utilisateurs;
-    }
-
-    public function addUtilisateur(Utilisateur $utilisateur): static
-    {
-        if (!$this->utilisateurs->contains($utilisateur)) {
-            $this->utilisateurs->add($utilisateur);
-            $utilisateur->addTournoiId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUtilisateur(Utilisateur $utilisateur): static
-    {
-        if ($this->utilisateurs->removeElement($utilisateur)) {
-            $utilisateur->removeTournoiId($this);
-        }
-
-        return $this;
-    }
+   
 
     /**
      * @return Collection<int, Terrain>
@@ -289,6 +261,48 @@ class Tournoi
                 $terrain->setTournoiId(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Participation>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
+    public function addParticipation(Participation $participation): static
+    {
+        if (!$this->participations->contains($participation)) {
+            $this->participations->add($participation);
+            $participation->setTournoiId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipation(Participation $participation): static
+    {
+        if ($this->participations->removeElement($participation)) {
+            // set the owning side to null (unless already changed)
+            if ($participation->getTournoiId() === $this) {
+                $participation->setTournoiId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getOrganisateur(): ?Utilisateur
+    {
+        return $this->organisateur;
+    }
+
+    public function setOrganisateur(?Utilisateur $organisateur): static
+    {
+        $this->organisateur = $organisateur;
 
         return $this;
     }

@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\TerrainRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TerrainRepository::class)]
+#[ApiResource]
 class Terrain
 {
     #[ORM\Id]
@@ -20,9 +22,9 @@ class Terrain
 
     #[ORM\ManyToOne(inversedBy: 'terrains')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Tournoi $tournoi_id = null;
+    private ?Tournoi $tournoi = null;
 
-    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'terrain_id')]
+    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'terrain')]
     private Collection $rencontres;
 
     public function __construct()
@@ -49,12 +51,12 @@ class Terrain
 
     public function getTournoiId(): ?Tournoi
     {
-        return $this->tournoi_id;
+        return $this->tournoi;
     }
 
-    public function setTournoiId(?Tournoi $tournoi_id): static
+    public function setTournoiId(?Tournoi $tournoi): static
     {
-        $this->tournoi_id = $tournoi_id;
+        $this->tournoi = $tournoi;
 
         return $this;
     }

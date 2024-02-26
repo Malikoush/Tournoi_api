@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ArbitreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArbitreRepository::class)]
+#[ApiResource]
 class Arbitre
 {
     #[ORM\Id]
@@ -19,9 +21,9 @@ class Arbitre
     private ?string $nom = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?Equipe $equipe_id = null;
+    private ?Equipe $equipe = null;
 
-    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'arbitre_id')]
+    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'arbitre')]
     private Collection $rencontres;
 
     public function __construct()
@@ -48,12 +50,12 @@ class Arbitre
 
     public function getEquipeId(): ?Equipe
     {
-        return $this->equipe_id;
+        return $this->equipe;
     }
 
-    public function setEquipeId(?Equipe $equipe_id): static
+    public function setEquipeId(?Equipe $equipe): static
     {
-        $this->equipe_id = $equipe_id;
+        $this->equipe = $equipe;
 
         return $this;
     }

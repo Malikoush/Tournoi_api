@@ -5,8 +5,10 @@ namespace App\Entity;
 use App\Repository\SetRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+use ApiPlatform\Metadata\ApiResource;
 #[ORM\Entity(repositoryClass: SetRepository::class)]
 #[ORM\Table(name: '`set`')]
+#[ApiResource]
 class Set
 {
     #[ORM\Id]
@@ -18,7 +20,7 @@ class Set
     private ?string $nom = null;
 
     #[ORM\ManyToOne(inversedBy: 'sets')]
-    private ?Rencontre $rencontre_id = null;
+    private ?Rencontre $rencontre = null;
 
     public function getId(): ?int
     {
@@ -39,12 +41,12 @@ class Set
 
     public function getRencontreId(): ?Rencontre
     {
-        return $this->rencontre_id;
+        return $this->rencontre;
     }
 
-    public function setRencontreId(?Rencontre $rencontre_id): static
+    public function setRencontreId(?Rencontre $rencontre): static
     {
-        $this->rencontre_id = $rencontre_id;
+        $this->rencontre = $rencontre;
 
         return $this;
     }

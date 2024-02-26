@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\EquipeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EquipeRepository::class)]
+#[ApiResource]
 class Equipe
 {
     #[ORM\Id]
@@ -27,24 +29,27 @@ class Equipe
     #[ORM\Column(type: "datetime_immutable", options:["default"=> "CURRENT_TIMESTAMP"])]
     private ?\DateTimeImmutable $date_creation = null;
 
-    #[ORM\ManyToMany(targetEntity: Poule::class, inversedBy: 'equipes')]
-    private Collection $poule_id;
+
 
     #[ORM\ManyToOne(inversedBy: 'equipes')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Tournoi $tournoi_id = null;
+    private ?Tournoi $tournoi = null;
 
-    #[ORM\OneToMany(targetEntity: Joueur::class, mappedBy: 'equipe_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Joueur::class, mappedBy: 'equipe', orphanRemoval: true)]
     private Collection $joueurs;
 
-    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'equipe1_id')]
+    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'equipe1')]
     private Collection $rencontres;
+
+    #[ORM\OneToMany(targetEntity: EquipePoule::class, mappedBy: 'equipe')]
+    private Collection $equipePoules;
 
     public function __construct()
     {
-        $this->poule_id = new ArrayCollection();
+        
         $this->joueurs = new ArrayCollection();
         $this->rencontres = new ArrayCollection();
+        $this->equipePoules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,38 +105,16 @@ class Equipe
         return $this;
     }
 
-    /**
-     * @return Collection<int, Poule>
-     */
-    public function getPouleId(): Collection
-    {
-        return $this->poule_id;
-    }
-
-    public function addPouleId(Poule $pouleId): static
-    {
-        if (!$this->poule_id->contains($pouleId)) {
-            $this->poule_id->add($pouleId);
-        }
-
-        return $this;
-    }
-
-    public function removePouleId(Poule $pouleId): static
-    {
-        $this->poule_id->removeElement($pouleId);
-
-        return $this;
-    }
+    
 
     public function getTournoiId(): ?Tournoi
     {
-        return $this->tournoi_id;
+        return $this->tournoi;
     }
 
-    public function setTournoiId(?Tournoi $tournoi_id): static
+    public function setTournoiId(?Tournoi $tournoi): static
     {
-        $this->tournoi_id = $tournoi_id;
+        $this->tournoi = $tournoi;
 
         return $this;
     }
@@ -190,6 +173,36 @@ class Equipe
             // set the owning side to null (unless already changed)
             if ($rencontre->getEquipe1Id() === $this) {
                 $rencontre->setEquipe1Id(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EquipePoule>
+     */
+    public function getEquipePoules(): Collection
+    {
+        return $this->equipePoules;
+    }
+
+    public function addEquipePoule(EquipePoule $equipePoule): static
+    {
+        if (!$this->equipePoules->contains($equipePoule)) {
+            $this->equipePoules->add($equipePoule);
+            $equipePoule->setEquipe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEquipePoule(EquipePoule $equipePoule): static
+    {
+        if ($this->equipePoules->removeElement($equipePoule)) {
+            // set the owning side to null (unless already changed)
+            if ($equipePoule->getEquipe() === $this) {
+                $equipePoule->setEquipe(null);
             }
         }
 

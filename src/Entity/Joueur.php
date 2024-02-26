@@ -2,10 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\JoueurRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: JoueurRepository::class)]
+#[ApiResource]
 class Joueur
 {
     #[ORM\Id]
@@ -18,7 +20,7 @@ class Joueur
 
     #[ORM\ManyToOne(inversedBy: 'joueurs')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Equipe $equipe_id = null;
+    private ?Equipe $equipe = null;
 
     public function getId(): ?int
     {
@@ -39,12 +41,12 @@ class Joueur
 
     public function getEquipeId(): ?Equipe
     {
-        return $this->equipe_id;
+        return $this->equipe;
     }
 
-    public function setEquipeId(?Equipe $equipe_id): static
+    public function setEquipeId(?Equipe $equipe): static
     {
-        $this->equipe_id = $equipe_id;
+        $this->equipe = $equipe;
 
         return $this;
     }

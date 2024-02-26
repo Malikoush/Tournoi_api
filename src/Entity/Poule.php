@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PouleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PouleRepository::class)]
+#[ApiResource]
 class Poule
 {
     #[ORM\Id]
@@ -26,18 +28,21 @@ class Poule
 
     #[ORM\ManyToOne(inversedBy: 'poules')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Phase $phase_id = null;
+    private ?Phase $phase = null;
 
-    #[ORM\ManyToMany(targetEntity: Equipe::class, mappedBy: 'poule_id')]
-    private Collection $equipes;
+  
 
-    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'poule_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Rencontre::class, mappedBy: 'poule', orphanRemoval: true)]
     private Collection $rencontres;
+
+    #[ORM\OneToMany(targetEntity: EquipePoule::class, mappedBy: 'poule')]
+    private Collection $equipePoules;
 
     public function __construct()
     {
-        $this->equipes = new ArrayCollection();
+
         $this->rencontres = new ArrayCollection();
+        $this->equipePoules = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -83,43 +88,17 @@ class Poule
 
     public function getPhaseId(): ?Phase
     {
-        return $this->phase_id;
+        return $this->phase;
     }
 
-    public function setPhaseId(?Phase $phase_id): static
+    public function setPhaseId(?Phase $phase): static
     {
-        $this->phase_id = $phase_id;
+        $this->phase = $phase;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Equipe>
-     */
-    public function getEquipes(): Collection
-    {
-        return $this->equipes;
-    }
-
-    public function addEquipe(Equipe $equipe): static
-    {
-        if (!$this->equipes->contains($equipe)) {
-            $this->equipes->add($equipe);
-            $equipe->addPouleId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEquipe(Equipe $equipe): static
-    {
-        if ($this->equipes->removeElement($equipe)) {
-            $equipe->removePouleId($this);
-        }
-
-        return $this;
-    }
-
+  
     /**
      * @return Collection<int, Rencontre>
      */
@@ -144,6 +123,36 @@ class Poule
             // set the owning side to null (unless already changed)
             if ($rencontre->getPouleId() === $this) {
                 $rencontre->setPouleId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EquipePoule>
+     */
+    public function getEquipePoules(): Collection
+    {
+        return $this->equipePoules;
+    }
+
+    public function addEquipePoule(EquipePoule $equipePoule): static
+    {
+        if (!$this->equipePoules->contains($equipePoule)) {
+            $this->equipePoules->add($equipePoule);
+            $equipePoule->setPoule($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEquipePoule(EquipePoule $equipePoule): static
+    {
+        if ($this->equipePoules->removeElement($equipePoule)) {
+            // set the owning side to null (unless already changed)
+            if ($equipePoule->getPoule() === $this) {
+                $equipePoule->setPoule(null);
             }
         }
 

@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PhaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PhaseRepository::class)]
+#[ApiResource]
 class Phase
 {
     #[ORM\Id]
@@ -20,9 +22,9 @@ class Phase
 
     #[ORM\ManyToOne(inversedBy: 'phases')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?Tournoi $tournoi_id = null;
+    private ?Tournoi $tournoi = null;
 
-    #[ORM\OneToMany(targetEntity: Poule::class, mappedBy: 'phase_id', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Poule::class, mappedBy: 'phase', orphanRemoval: true)]
     private Collection $poules;
 
     public function __construct()
@@ -49,12 +51,12 @@ class Phase
 
     public function getTournoiId(): ?Tournoi
     {
-        return $this->tournoi_id;
+        return $this->tournoi;
     }
 
-    public function setTournoiId(?Tournoi $tournoi_id): static
+    public function setTournoiId(?Tournoi $tournoi): static
     {
-        $this->tournoi_id = $tournoi_id;
+        $this->tournoi = $tournoi;
 
         return $this;
     }
